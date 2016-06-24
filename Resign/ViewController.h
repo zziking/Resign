@@ -33,6 +33,7 @@
 @property (weak) IBOutlet NSButton *defaultIconsButton;
 @property (weak) IBOutlet IconButton *iconButton;
 @property (weak) IBOutlet IconButton *retinaIconButton;
+@property (weak) IBOutlet NSTextField *injectDylibField;
 
 // Console UI
 @property (weak) IBOutlet NSButton *cleanConsoleButton;

@@ -444,6 +444,27 @@
 	}
 }
 
+- (IBAction)browseDylib:(id)sender {
+    // resign as first responder the other controls
+    AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+    [appDelegate.window makeFirstResponder: nil];
+    
+    // Browse the IPA file
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:TRUE];
+    [openDlg setCanChooseDirectories:FALSE];
+    [openDlg setAllowsMultipleSelection:FALSE];
+    [openDlg setAllowsOtherFileTypes:FALSE];
+//    [openDlg setAllowedFileTypes:@[@"ipa", @"IPA"]];
+    
+    if ([openDlg runModal] == NSOKButton)
+    {
+        NSString* fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
+        [self.injectDylibField setStringValue:fileNameOpened];
+        
+    }
+}
+
 - (IBAction)showProvisioningInfo:(id)sender
 {
 	// resign as first responder the other controls
