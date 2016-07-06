@@ -8,6 +8,7 @@
 
 #import "FileHandler.h"
 #import "YAProvisioningProfile.h"
+#import "BundleIdentifierHandler.h"
 
 @implementation FileHandler
 
@@ -1199,6 +1200,9 @@ static FileHandler *istance;
 	{
 		// Set the value of kCFBundleDisplayName/kCFBundleIdentifier in the Info.plist file
 		NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
+        
+        NSString *originBundleId = [plist objectForKey:kCFBundleIdentifier];
+        
 		NSString *displayName = [self.delegate getResignDisplayName];
 		[plist setObject:displayName forKey:kCFBundleDisplayName];
 		NSString *bundleId = [self.delegate getResignBundleId];
@@ -1208,18 +1212,27 @@ static FileHandler *istance;
 		NSString *buildVersion = [self.delegate getResignBuildVersion];
 		[plist setObject:buildVersion forKey:kCFBundleVersion];
 
-		// Save the Info.plist file overwriting
-		NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
-		if ([xmlData writeToFile:infoPlistPath atomically:YES])
-		{
-			if (successBlock != nil)
-				successBlock(@"File Info.plist edited properly");
-		}
-		else
-		{
-			if (errorBlock != nil)
-				errorBlock(@"Failed to re-save the Info.plist file properly. Please try again.");
-		}
+        BundleIdentifierHandler *bundleIdHandler = [[BundleIdentifierHandler alloc] initWithAppPath:self.appPath];
+        [bundleIdHandler editInfoPlistWithOriginBundleId:originBundleId
+                                             newBundleId:[self.delegate getResignBundleId]
+                                                     Log:logBlock
+                                                   error:errorBlock
+                                                 success:^(id str) {
+                                                     // Save the Info.plist file overwriting
+                                                     NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+                                                     if ([xmlData writeToFile:infoPlistPath atomically:YES])
+                                                     {
+                                                         if (successBlock != nil)
+                                                             successBlock(@"File Info.plist edited properly");
+                                                     }
+                                                     else
+                                                     {
+                                                         if (errorBlock != nil)
+                                                             errorBlock(@"Failed to re-save the Info.plist file properly. Please try again.");
+                                                     }
+                                                 }];
+        
+		
 	}
 	
 	// Failed to find the Info.plist
